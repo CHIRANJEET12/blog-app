@@ -70,7 +70,6 @@ export const Post = () => {
                                 </div>
                             </div>
 
-                            {/* Settings Menu */}
                             <div className="relative">
                                 <div
                                     className="set w-8 h-8 flex items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full"

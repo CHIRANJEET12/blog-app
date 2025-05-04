@@ -17,13 +17,13 @@ export const Navbar = () => {
   
         <div className="right flex gap-3">
           <a
-            href="/"
+            href="/login"
             className="px-4 py-2 text-sm font-medium text-white bg-black rounded hover:bg-black transition"
           >
             Login
           </a>
           <a
-            href="/"
+            href="/reg"
             className="px-4 py-2 text-sm font-medium text-black border border-black rounded hover:bg-blue-50 transition"
           >
             Register

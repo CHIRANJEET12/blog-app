@@ -50,7 +50,6 @@ export const Profile = () => {
     };
 
     const saveChanges = () => {
-        // You can implement save logic here (e.g., sending data to a server)
         setShow(false);
         console.log("Changes saved");
     };
