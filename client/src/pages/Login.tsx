@@ -1,6 +1,25 @@
 import React from 'react'
+import { useState,useEffect } from 'react'
 
 export const Login = () => {
+    const [islogin, setIsLogin] = useState(false);
+    useEffect(() => {
+        const check = localStorage.getItem('islogin');
+        if(check){
+            setIsLogin(JSON.parse(check));
+        }
+    },[]);
+    const handelCheck = () => {
+        if (islogin) {  
+            localStorage.setItem('islogin', JSON.stringify(false));
+            setIsLogin(false);
+        }
+        else {
+            localStorage.setItem('islogin', JSON.stringify(true));
+            setIsLogin(true);
+        }
+    }
+    
     return (
         <div>
             <div className="py-16">
@@ -52,7 +71,7 @@ export const Login = () => {
                             <input className="bg-gray-200 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" type="password" />
                         </div>
                         <div className="mt-8">
-                            <button className="bg-gray-700 text-white font-bold py-2 px-4 w-full rounded hover:bg-gray-600">Login</button>
+                            <button onClick={handelCheck} className="bg-gray-700 text-white font-bold py-2 px-4 w-full rounded hover:bg-gray-600">Login</button>
                         </div>
                         <div className="mt-4 flex items-center justify-between">
                             <span className="border-b w-1/5 md:w-1/4"></span>

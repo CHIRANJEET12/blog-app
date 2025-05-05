@@ -20,23 +20,40 @@ export const Home = () => {
                 {show && (
                     <div className="absolute top-16 left-0 w-full bg-white border border-gray-300 rounded shadow-lg p-4 z-10">
                         <h2 className="text-lg font-semibold mb-2">Create a new blog</h2>
+
                         <input
                             type="text"
                             placeholder="Title"
                             className="border border-gray-300 rounded p-2 w-full mb-4"
                         />
+
                         <textarea
                             placeholder="Content"
                             className="border border-gray-300 rounded p-2 w-full h-32 mb-4"
                         ></textarea>
+
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Add an image
+                            </label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4
+                   file:rounded file:border-0 file:text-sm file:font-semibold
+                   file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                            />
+                        </div>
+
                         <div className="flex gap-2">
                             <button className="bg-black text-white px-4 py-2 rounded">Submit</button>
                             <button onClick={handleClick} className="bg-black text-white px-4 py-2 rounded">Close</button>
                         </div>
                     </div>
                 )}
+
             </div>
-            <Post  />
+            <Post />
         </div>
     );
 };
