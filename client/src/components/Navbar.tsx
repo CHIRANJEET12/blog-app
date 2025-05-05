@@ -11,8 +11,8 @@ export const Navbar = () => {
     return (
       <nav className="Navbar flex justify-between items-center p-1 bg-white ">
         <div className="left flex items-center space-x-4">
-          <img onClick={handelProfile} className="w-7 h-7 p-0 rounded-full ring-2 ring-gray-300 dark:ring-gray-500" src="https://i.pravatar.cc/40?img=1" alt="Bordered avatar"/>
-          <a href="/" className="text-2xl  text-black">Blogify</a>
+          <img onClick={handelProfile} className="w-7 h-7 p-0 rounded-full ring-2  ring-gray-300 dark:ring-gray-500" src="https://i.pravatar.cc/40?img=1" title='go to profile' alt="Bordered avatar"/>
+          <a href="/" title='Home' className="text-2xl text-black">Blogify</a>
         </div>
   
         <div className="right flex gap-3">

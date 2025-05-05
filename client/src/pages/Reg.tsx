@@ -44,7 +44,7 @@ export const Reg = () => {
             </div>
 
             <div className="mt-4 text-center">
-              <a href="#" className="text-xs text-gray-500 uppercase">Already have an account? Login</a>
+              <a href="/login" className="text-xs text-gray-500 uppercase">Already have an account? Login</a>
             </div>
           </form>
         </div>
