@@ -29,14 +29,14 @@ export const register = async (req: Request, res: Response): Promise<any> => {
         );
         const user = newUser.rows[0];
         const token = jwt.sign(
-            { userId: user.id, email: user.email }, // Payload (you can add more info here)
+            { userId: user.id, email: user.email },
             secretKey,
-            { expiresIn: '1h' } // Token expiration time
+            { expiresIn: '1h' } 
         );
 
-        // Send response with token
 
-        res.status(201).json({ message: 'Registration successful', token, user });
+        res.status(201).json({ message: 'Registration successful', token, name: user.fullname });
+
     } catch (err) {
         console.error('Error during registration:', err);
         res.status(500).json({ message: 'Server error. Please try again.' });
@@ -67,9 +67,28 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         const token = jwt.sign(payload, secretKey as string, { expiresIn: '5d' });
 
 
-        return res.status(200).json({ message: 'Login successful', token });
+        return res.status(200).json({ message: 'Login successful', token ,email: user.email});
     } catch (err) {
         console.error('Login error:', err);
         return res.status(500).json({ message: 'Server error. Please try again.' });
     }
 };
+
+
+export const createProfile  = async (req: Request, res: Response): Promise<any> =>{
+    const [    name, age, email, image, bio, location,
+        website, twitter, github, linkedin,
+        facebook, instagram, portfolio, resume] = req.body;
+
+        try{
+            const result = await pool.query(`INSERT INTO Profile (name, age, email, image, bio, location,website, twitter, github, linkedin,facebook, instagram, portfolio, resume) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,      [
+                name, age, email, image, bio, location,
+                website, twitter, github, linkedin,
+                facebook, instagram, portfolio, resume
+              ]);
+              const user = result.rows[0];
+        }catch (err) {
+            console.error('Error creating profile:', err);
+            res.status(500).json({ message: 'Server error' });
+        }
+}

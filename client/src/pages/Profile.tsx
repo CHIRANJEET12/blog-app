@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 
 interface ProfileProps {
     name: string;
@@ -19,6 +19,9 @@ interface ProfileProps {
 
 export const Profile = () => {
     const [show, setShow] = useState(false);
+
+
+
     const [profileData, setProfileData] = useState({
         name: "John Doe",
         age: 30,
@@ -36,6 +39,17 @@ export const Profile = () => {
         resume: "",
     });
 
+    useEffect(()=>{
+        const sName = localStorage.getItem('name');
+        const sEmail = localStorage.getItem('email');
+
+        setProfileData((prev)=>({
+            ...prev,
+            name: sName || prev.name,
+            email: sEmail || prev.email,
+        }))
+        
+    },[]);
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setProfileData((prevData) => ({

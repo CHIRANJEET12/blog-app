@@ -10,6 +10,7 @@ export interface AuthRequest extends Request {
     user?: string | object;
 }
 
+
 export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction): void => {
     const authHeader = req.headers.authorization;
     console.log("Authorization Header:", authHeader);
