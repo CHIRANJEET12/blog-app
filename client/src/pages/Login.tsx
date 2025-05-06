@@ -20,7 +20,7 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/login', formData);
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_CON}/login`, formData);
 
       if (res && res.data?.token) {
         localStorage.setItem('email',res.data.email);
