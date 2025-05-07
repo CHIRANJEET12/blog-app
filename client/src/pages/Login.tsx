@@ -23,6 +23,7 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_CON}/login`, formData);
 
       if (res && res.data?.token) {
+        console.log('res:',res);
         localStorage.setItem('email',res.data.email);
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('islogin', 'true'); 

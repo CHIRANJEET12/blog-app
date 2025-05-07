@@ -33,7 +33,7 @@ export const Reg = () => {
       });
   
       if (res && res.data) {
-        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('reg-token', res.data.token);
         localStorage.setItem('name',res.data.name);
   
         alert('Successfully registered!');
