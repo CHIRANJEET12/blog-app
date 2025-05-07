@@ -3,10 +3,12 @@ import { pool } from '../db/db';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import cloudinary from '../cloudinary';
+
 
 dotenv.config();
 
-const secretKey : string = process.env.JWT_SECRET || 'your_fallback_secret'; 
+const secretKey: string = process.env.JWT_SECRET || 'your_fallback_secret';
 
 export const register = async (req: Request, res: Response): Promise<any> => {
     const { fullName, email, password, confirmPassword } = req.body;
@@ -31,7 +33,7 @@ export const register = async (req: Request, res: Response): Promise<any> => {
         const token = jwt.sign(
             { userId: user.id, email: user.email },
             secretKey,
-            { expiresIn: '1h' } 
+            { expiresIn: '1h' }
         );
 
 
@@ -69,7 +71,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
 
 
-        return res.status(200).json({ message: 'Login successful', token ,email: user.email});
+        return res.status(200).json({ message: 'Login successful', token, email: user.email });
     } catch (err) {
         console.error('Login error:', err);
         return res.status(500).json({ message: 'Server error. Please try again.' });
@@ -78,7 +80,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
 
 export const getProfile = async (req: Request, res: Response): Promise<any> => {
-    const email = req.query.email as string; // fetch email from query
+    const email = req.query.email as string; 
 
     const result = await pool.query(
         'SELECT * FROM profiles WHERE email = $1',
@@ -93,9 +95,9 @@ export const getProfile = async (req: Request, res: Response): Promise<any> => {
 };
 
 export const updateProfile = async (req: Request, res: Response): Promise<any> => {
-    const { 
-        email, name, age, bio, location, website, twitter, github, linkedin, 
-        facebook, instagram, portfolio, resume 
+    const {
+        email, name, age, bio, location, website, twitter, github, linkedin,
+        facebook, instagram, portfolio, resume
     } = req.body;
 
     const result = await pool.query(
@@ -109,3 +111,45 @@ export const updateProfile = async (req: Request, res: Response): Promise<any> =
 
     res.json(result.rows[0]);
 };
+
+
+
+export const addPost = async (req: Request, res: Response) => {
+  try {
+    const { title, content } = req.body;
+
+    // Expecting base64 string or remote URL from frontend
+    const image = req.body.image;
+
+    let imageUrl = '';
+
+    if (image) {
+      const uploaded = await cloudinary.uploader.upload(image, {
+        folder: 'blog-images', // Optional folder in Cloudinary
+      });
+      imageUrl = uploaded.secure_url;
+    }
+
+    const result = await pool.query(
+      'INSERT INTO posts (title, content, image_url) VALUES ($1, $2, $3) RETURNING *',
+      [title, content, imageUrl]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error uploading post:', err);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+};
+
+export const getPost = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const result = await pool.query(
+        'SELECT * FROM posts ORDER BY created_at DESC'
+      );
+      res.status(200).json(result.rows);
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+      res.status(500).json({ error: 'Database error' });
+    }
+  };
