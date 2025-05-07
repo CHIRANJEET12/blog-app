@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../axiosConfig';
+import axios from 'axios';
 
 interface ProfileProps {
   name: string;
@@ -18,12 +18,11 @@ interface ProfileProps {
   resume: string;
 }
 
-export const Profile = () => {
-  const [show, setShow] = useState(false);
-  const [formData, setFormData] = useState<ProfileProps>({
+const ProfileForm: React.FC = () => {
+  const [profile, setProfile] = useState<ProfileProps>({
     name: '',
     age: 0,
-    email: '',
+    email: localStorage.getItem('email') || '',
     image: '',
     bio: '',
     location: '',
@@ -34,236 +33,191 @@ export const Profile = () => {
     facebook: '',
     instagram: '',
     portfolio: '',
-    resume: ''
-  });
-
-  const [profileData, setProfileData] = useState<ProfileProps>({
-    name: 'John Doe',
-    age: 30,
-    email: 'john.doe@example.com',
-    image: 'https://i.pravatar.cc/40?img=1',
-    bio: 'Software Engineer with 5 years of experience in web development.',
-    location: 'New York, USA',
-    website: '',
-    twitter: '',
-    github: '',
-    linkedin: '',
-    facebook: '',
-    instagram: '',
-    portfolio: '',
-    resume: ''
+    resume: '',
   });
 
   useEffect(() => {
-    const sName = localStorage.getItem('name');
-    const sEmail = localStorage.getItem('email');
+    const fetchProfile = async () => {
+      if (!profile.email) return;
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_CON}/profile`, {
+          params: { email: profile.email },
+        });
+        setProfile(res.data);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
 
-    if (sName || sEmail) {
-      setProfileData((prev) => ({
-        ...prev,
-        name: sName || prev.name,
-        email: sEmail || prev.email
-      }));
-    }
-  }, []);
+    fetchProfile();
+  }, [profile.email]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: name === 'age' ? Number(value) : value
+    setProfile((prev) => ({
+      ...prev,
+      [name]: name === 'age' ? Number(value) : value,
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    localStorage.setItem('email', profile.email);
+
     try {
-      const res = await axios.post(`${import.meta.env.VITE_BACKEND_CON}/profile`, formData);
-      if (res) {
-        saveChanges();
-      }
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Profile update failed');
-      console.error('Profile update error:', err);
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_CON}/profile`, profile);
+      alert('Profile updated successfully');
+    } catch (error) {
+      console.error('Error updating profile:', error);
     }
   };
 
-  const edit = () => {
-    setShow((prev) => {
-      if (!prev) {
-        setFormData(profileData);  // Load profile data into formData when editing starts
-      }
-      return !prev;
-    });
-  };
-
-  const saveChanges = () => {
-    setProfileData(formData);  // Commit formData to profileData
-    setShow(false);
-    console.log('Changes saved');
-  };
-
   return (
-    <div>
-      <h1 className="text-3xl font-light mt-4">Profile Setup</h1>
-      <div className="flex flex-col md:flex-row items-center bg-white p-4 rounded-lg shadow-md">
-        <img
-          src={profileData.image}
-          alt="Profile"
-          className="rounded-full w-32 h-32 mr-4"
-        />
-        <button onClick={edit} className="bg-black text-white px-4 py-2 rounded">
-          {show ? 'Cancel' : 'Edit'}
-        </button>
-        <div className="flex flex-col ml-4">
-          {show ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="number"
-                name="age"
-                value={formData.age}
-                placeholder="34"
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                placeholder="Enter your location"
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-              />
-              <textarea
-                name="bio"
-                value={formData.bio}
-                placeholder="Enter your bio"
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                name="website"
-                value={formData.website}
-                onChange={handleInputChange}
-                placeholder="Website URL"
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                name="twitter"
-                value={formData.twitter}
-                onChange={handleInputChange}
-                placeholder="Twitter URL"
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                name="github"
-                value={formData.github}
-                onChange={handleInputChange}
-                placeholder="GitHub URL"
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                name="linkedin"
-                value={formData.linkedin}
-                onChange={handleInputChange}
-                placeholder="LinkedIn URL"
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                name="facebook"
-                value={formData.facebook}
-                onChange={handleInputChange}
-                placeholder="Facebook URL"
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                name="instagram"
-                value={formData.instagram}
-                onChange={handleInputChange}
-                placeholder="Instagram URL"
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                name="portfolio"
-                value={formData.portfolio}
-                onChange={handleInputChange}
-                placeholder="Portfolio URL"
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                name="resume"
-                value={formData.resume}
-                onChange={handleInputChange}
-                placeholder="Resume URL"
-                className="w-full p-2 border rounded"
-              />
-              <button
-                type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                Save Changes
-              </button>
-            </form>
-          ) : (
-            <>
-              <h2 className="text-xl font-semibold">{profileData.name}</h2>
-              <p className="text-gray-600">Age: {profileData.age}</p>
-              <p className="text-gray-600">Email: {profileData.email}</p>
-              <p className="text-gray-600">Location: {profileData.location}</p>
-              <p className="text-gray-600">Bio: {profileData.bio}</p>
-              <div className="flex space-x-4 mt-2">
-                <a href={profileData.website} className="text-blue-500 hover:underline">
-                  Website
-                </a>
-                <a href={profileData.twitter} className="text-blue-500 hover:underline">
-                  Twitter
-                </a>
-                <a href={profileData.github} className="text-blue-500 hover:underline">
-                  GitHub
-                </a>
-                <a href={profileData.linkedin} className="text-blue-500 hover:underline">
-                  LinkedIn
-                </a>
-                <a href={profileData.facebook} className="text-blue-500 hover:underline">
-                  Facebook
-                </a>
-                <a href={profileData.instagram} className="text-blue-500 hover:underline">
-                  Instagram
-                </a>
-                <a href={profileData.portfolio} className="text-blue-500 hover:underline">
-                  Portfolio
-                </a>
-                <a href={profileData.resume} className="text-blue-500 hover:underline">
-                  Resume
-                </a>
-              </div>
-            </>
-          )}
-        </div>
+    <div className="flex items-center justify-center min-h-screen bg-black text-white">
+      <div className="bg-black p-8 rounded-lg shadow-lg w-full max-w-lg">
+        <h1 className="text-3xl font-semibold text-center mb-6">Profile Setup</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={profile.email}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Name</label>
+            <input
+              type="text"
+              name="name"
+              value={profile.name}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Age</label>
+            <input
+              type="number"
+              name="age"
+              value={profile.age}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Bio</label>
+            <input
+              type="text"
+              name="bio"
+              value={profile.bio}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Location</label>
+            <input
+              type="text"
+              name="location"
+              value={profile.location}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Website</label>
+            <input
+              type="text"
+              name="website"
+              value={profile.website}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Twitter</label>
+            <input
+              type="text"
+              name="twitter"
+              value={profile.twitter}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">GitHub</label>
+            <input
+              type="text"
+              name="github"
+              value={profile.github}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">LinkedIn</label>
+            <input
+              type="text"
+              name="linkedin"
+              value={profile.linkedin}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Facebook</label>
+            <input
+              type="text"
+              name="facebook"
+              value={profile.facebook}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Instagram</label>
+            <input
+              type="text"
+              name="instagram"
+              value={profile.instagram}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Portfolio</label>
+            <input
+              type="text"
+              name="portfolio"
+              value={profile.portfolio}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Resume</label>
+            <input
+              type="text"
+              name="resume"
+              value={profile.resume}
+              onChange={handleChange}
+              className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full p-3 mt-4 bg-black text-white rounded-md hover:bg-white hover:text-black transition duration-200"
+          >
+            Save
+          </button>
+        </form>
       </div>
     </div>
   );
 };
+
+export default ProfileForm;

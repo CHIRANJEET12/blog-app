@@ -2,7 +2,7 @@ import { Navbar } from "./components/Navbar";
 import { Home } from "./pages/Home";
 import { Login } from "./pages/Login";
 import { Reg } from "./pages/Reg";
-import { Profile } from "./pages/Profile";
+import ProfileForm  from "./pages/Profile";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { CoverHome } from "./pages/CoverHome";
 import { useState, useEffect } from "react";
@@ -36,7 +36,7 @@ const App = () => {
         {islogin ? (
           <>
             <Route path="/" element={<Home />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile" element={<ProfileForm />} />
           </>
         ) : (
           // If not logged in, show the CoverHome page

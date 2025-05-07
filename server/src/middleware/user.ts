@@ -13,7 +13,7 @@ export interface AuthRequest extends Request {
 
 export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction): void => {
     const authHeader = req.headers.authorization;
-    console.log("Authorization Header:", authHeader);
+    // console.log("Authorization Header:", authHeader);
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         res.status(401).json({ message: 'Unauthorized: No token provided or bad format' });
