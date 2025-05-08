@@ -43,6 +43,7 @@ const ProfileForm: React.FC = () => {
         const res = await axios.get(`${import.meta.env.VITE_BACKEND_CON}/profile`, {
           params: { email: profile.email },
         });
+        localStorage.setItem('name',res.data.name);
         setProfile(res.data);
       } catch (error) {
         console.error('Error fetching profile:', error);

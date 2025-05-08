@@ -80,7 +80,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
 
 export const getProfile = async (req: Request, res: Response): Promise<any> => {
-    const email = req.query.email as string; 
+    const email = req.query.email as string;
 
     const result = await pool.query(
         'SELECT * FROM profiles WHERE email = $1',
@@ -115,41 +115,75 @@ export const updateProfile = async (req: Request, res: Response): Promise<any> =
 
 
 export const addPost = async (req: Request, res: Response) => {
-  try {
-    const { title, content } = req.body;
+    try {
+        const { title, content, email, name } = req.body;
 
-    // Expecting base64 string or remote URL from frontend
-    const image = req.body.image;
+        // Expecting base64 string or remote URL from frontend
+        const image = req.body.image;
 
-    let imageUrl = '';
+        let imageUrl = '';
 
-    if (image) {
-      const uploaded = await cloudinary.uploader.upload(image, {
-        folder: 'blog-images', // Optional folder in Cloudinary
-      });
-      imageUrl = uploaded.secure_url;
+        if (image) {
+            const uploaded = await cloudinary.uploader.upload(image, {
+                folder: 'blog-images',
+            });
+            imageUrl = uploaded.secure_url;
+        }
+
+        const result = await pool.query(
+            'INSERT INTO posts (email,name, title, content, image_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [email, name, title, content, imageUrl]
+        );
+
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error('Error uploading post:', err);
+        res.status(500).json({ error: 'Something went wrong' });
     }
-
-    const result = await pool.query(
-      'INSERT INTO posts (title, content, image_url) VALUES ($1, $2, $3) RETURNING *',
-      [title, content, imageUrl]
-    );
-
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error('Error uploading post:', err);
-    res.status(500).json({ error: 'Something went wrong' });
-  }
 };
+
+export const likePost = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            'UPDATE posts SET likes = likes + 1 WHERE id = $1 RETURNING likes',
+            [id]
+        );
+
+        if (result.rows.length > 0) {
+            res.json({ likes: result.rows[0].likes });
+        } else {
+            res.status(404).json({ message: 'Post not found' });
+        }
+    } catch (err) {
+        console.error('Error updating likes:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+// export const editPost = async(req: Request, res: Response) => {
+//     try{
+//         const {id:number,title,content,imageurl} = req.body;
+//         if (!id) return res.status(400).json({ message: 'Post ID is required' });
+//     }
+// }
 
 export const getPost = async (req: Request, res: Response): Promise<void> => {
     try {
-      const result = await pool.query(
-        'SELECT * FROM posts ORDER BY created_at DESC'
-      );
-      res.status(200).json(result.rows);
+        const result = await pool.query(
+            'SELECT * FROM posts ORDER BY created_at DESC'
+        );
+
+        const postsWithImageUrls = result.rows.map((post: any) => {
+            return {
+                ...post,
+                imageUrl: post.image_url
+            };
+        });
+
+        res.status(200).json(postsWithImageUrls);
     } catch (err) {
-      console.error('Error fetching posts:', err);
-      res.status(500).json({ error: 'Database error' });
+        console.error('Error fetching posts:', err);
+        res.status(500).json({ error: 'Database error' });
     }
-  };
+};

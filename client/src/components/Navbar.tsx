@@ -18,6 +18,7 @@ export const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('islogin');
+    localStorage.removeItem('name');
     localStorage.removeItem('email');
     setIsLogin(false);
     setShow(false);

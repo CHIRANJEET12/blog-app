@@ -27,7 +27,9 @@ export const Home = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-      
+
+        const name = localStorage.getItem('name');
+        const email = localStorage.getItem('email');
         let base64Image = '';
       
         if (formData.image) {
@@ -40,6 +42,8 @@ export const Home = () => {
                 title: formData.title,
                 content: formData.content,
                 image: base64Image,
+                name,
+                email
               });
               alert('Post created');
               setFormData({ title: '', content: '', image: null });
