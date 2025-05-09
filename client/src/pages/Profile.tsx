@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../axiosConfig';
+import { FiExternalLink } from 'react-icons/fi';
+
 
 interface ProfileProps {
   name: string;
@@ -43,7 +45,7 @@ const ProfileForm: React.FC = () => {
         const res = await axios.get(`${import.meta.env.VITE_BACKEND_CON}/profile`, {
           params: { email: profile.email },
         });
-        localStorage.setItem('name',res.data.name);
+        localStorage.setItem('name', res.data.name);
         setProfile(res.data);
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -72,6 +74,19 @@ const ProfileForm: React.FC = () => {
       console.error('Error updating profile:', error);
     }
   };
+
+  const NavigateIcon: React.FC<{ url: string }> = ({ url }) => {
+    return url ? (
+      <a
+        href={url.startsWith('http') ? url : `https://${url}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="ml-2 inline-flex items-center text-white hover:text-gray-400"
+      >
+        <FiExternalLink className="text-white" />
+      </a>
+    ) : null;
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-black text-white">
@@ -138,6 +153,7 @@ const ProfileForm: React.FC = () => {
               onChange={handleChange}
               className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
             />
+            <NavigateIcon url={profile.website} />
           </div>
           <div>
             <label className="block text-sm font-medium">Twitter</label>
@@ -148,6 +164,7 @@ const ProfileForm: React.FC = () => {
               onChange={handleChange}
               className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
             />
+            <NavigateIcon url={profile.twitter} />
           </div>
           <div>
             <label className="block text-sm font-medium">GitHub</label>
@@ -158,6 +175,7 @@ const ProfileForm: React.FC = () => {
               onChange={handleChange}
               className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
             />
+            <NavigateIcon url={profile.github} />
           </div>
           <div>
             <label className="block text-sm font-medium">LinkedIn</label>
@@ -168,6 +186,7 @@ const ProfileForm: React.FC = () => {
               onChange={handleChange}
               className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
             />
+            <NavigateIcon url={profile.linkedin} />
           </div>
           <div>
             <label className="block text-sm font-medium">Facebook</label>
@@ -178,6 +197,7 @@ const ProfileForm: React.FC = () => {
               onChange={handleChange}
               className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
             />
+            <NavigateIcon url={profile.facebook} />
           </div>
           <div>
             <label className="block text-sm font-medium">Instagram</label>
@@ -188,6 +208,7 @@ const ProfileForm: React.FC = () => {
               onChange={handleChange}
               className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
             />
+            <NavigateIcon url={profile.instagram} />
           </div>
           <div>
             <label className="block text-sm font-medium">Portfolio</label>
@@ -198,6 +219,7 @@ const ProfileForm: React.FC = () => {
               onChange={handleChange}
               className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
             />
+            <NavigateIcon url={profile.portfolio} />
           </div>
           <div>
             <label className="block text-sm font-medium">Resume</label>
@@ -208,6 +230,7 @@ const ProfileForm: React.FC = () => {
               onChange={handleChange}
               className="w-full p-3 mt-1 border border-white bg-black rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
             />
+            <NavigateIcon url={profile.resume} />
           </div>
           <button
             type="submit"

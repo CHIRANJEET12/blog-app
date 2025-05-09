@@ -4,7 +4,9 @@ import { Login } from "./pages/Login";
 import { Reg } from "./pages/Reg";
 import ProfileForm  from "./pages/Profile";
 import { Routes, Route, useNavigate } from "react-router-dom";
+import { Postid } from "./pages/Postid";
 import { CoverHome } from "./pages/CoverHome";
+// import { GetProfile } from "./pages/Getprofile";
 import { useState, useEffect } from "react";
 
 // Typing the onLoginSuccess function
@@ -37,6 +39,9 @@ const App = () => {
           <>
             <Route path="/" element={<Home />} />
             <Route path="/profile" element={<ProfileForm />} />
+            <Route path="/post/:id" element={<Postid/>} />
+            {/* <Route path="/profile/:id" element={<GetProfile/>} /> */}
+
           </>
         ) : (
           // If not logged in, show the CoverHome page

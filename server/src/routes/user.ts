@@ -12,7 +12,9 @@ router.get('/getpost',authenticateToken,getPost);
 router.post('/likes/:id',authenticateToken,likePost);
 router.put('/edit/:id',authenticateToken,editPost);
 router.delete('/delete/:id',authenticateToken,delete1);
-router.get('/post/:id',authenticateToken,getPostById);
+router.get('/post/:id',getPostById);
+// router.get('/profile/:id',getProfilebyId);
+
 
 
 export default router;

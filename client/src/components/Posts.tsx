@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Com } from './Com';
+import { useNavigate } from 'react-router-dom';
+
 import axios from '../axiosConfig';
 
 interface Post {
@@ -13,6 +15,8 @@ interface Post {
 }
 
 export const Post = () => {
+
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loadedImages, setLoadedImages] = useState<number[]>([]);
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
@@ -54,11 +58,11 @@ export const Post = () => {
   const handleShare = async (postId: number) => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_BACKEND_CON}/post/${postId}`);
-      
+
       if (res.status !== 200 || !res.data) {
         throw new Error('Post not found');
       }
-  
+
       const postUrl = `${window.location.origin}/post/${postId}`;
       await navigator.clipboard.writeText(postUrl);
       alert('Post link copied!');
@@ -67,7 +71,7 @@ export const Post = () => {
       alert('Failed to copy post link.');
     }
   };
-  
+
 
   const toggleDropdown = useCallback((id: number) => {
     setOpenDropdownId((prevId) => (prevId === id ? null : id));
@@ -100,7 +104,7 @@ export const Post = () => {
         prevPosts.map(post => (post.id === updatedPost.id ? res.data : post))
       );
       setEdit(null);
-      window.location.reload;
+      window.location.reload();
     } catch (error) {
       console.error('Error updating post:', error);
     }
@@ -134,6 +138,7 @@ export const Post = () => {
     }
   };
 
+
   const memoizedPosts = posts;
 
   return (
@@ -149,7 +154,7 @@ export const Post = () => {
                   className="w-10 h-10 rounded-full mr-3"
                 />
                 <div>
-                  <span className="font-medium text-gray-800">{post.name}</span>
+                  <span className="font-medium text-gray-800 hover:  cursor-pointer">{post.name}</span>
                   <span className="text-sm text-gray-500 ml-2">{post.time}</span>
                 </div>
               </div>
@@ -251,11 +256,11 @@ export const Post = () => {
               </button>
               <button
                 onClick={() => toggleCommentBox(post.id)}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover: cursor-pointer"
               >
                 Comment
               </button>
-              <button className="bg-gray-300 text-gray-700 px-4 py-2 rounded">Share</button>
+              <button onClick={() => handleShare(post.id)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover: cursor-pointer">Share</button>
             </div>
 
             {activeCommentBox === post.id && (

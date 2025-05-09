@@ -213,19 +213,45 @@ export const getPost = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
+// export const getProfilebyId = async (req: Request, res: Response): Promise<void> => {
+//   const profid = req.params.id;
+
+//   try {
+//     const result = await pool.query(
+//       `SELECT id, name, age, email, bio, location, website, twitter, github, linkedin, facebook, instagram, portfolio, resume
+//        FROM profiles
+//        WHERE id = $1`,
+//       [profid]
+//     );
+
+//     if (result.rows.length === 0) {
+//       res.status(404).json({ message: 'Profile not found' });
+//       return;
+//     }
+
+//     res.status(200).json(result.rows[0]);
+//   } catch (error) {
+//     console.error('Error fetching profile by ID:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
+
 export const getPostById = async (req: Request, res: Response): Promise<any> => {
-    const postId = req.params.id;
-  
-    try {
-      const result = await pool.query('SELECT * FROM posts WHERE id = $1', [postId]);
-  
-      if (result.rows.length === 0) {
-        return res.status(404).json({ message: 'Post not found' });
-      }
-  
-      return res.status(200).json(result.rows[0]);
-    } catch (error) {
-      console.error('Error fetching post:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+  const postId = req.params.id;
+
+  try {
+    const result = await pool.query(
+      'SELECT id, name, title, content, image_url AS "imageUrl", created_at AS time FROM posts WHERE id = $1',
+      [postId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Post not found' });
     }
-  };
+
+    return res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching post:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};

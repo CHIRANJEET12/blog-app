@@ -47,6 +47,7 @@ export const Home = () => {
               });
               alert('Post created');
               setFormData({ title: '', content: '', image: null });
+              window.location.reload();
               setShow(false);
             } catch (err: any) {
               alert(err.response?.data?.message || 'Error');
