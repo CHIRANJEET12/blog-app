@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import cloudinary from '../cloudinary';
+import { promises } from 'dns';
 
 
 dotenv.config();
@@ -114,7 +115,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<any> =
 
 
 
-export const addPost = async (req: Request, res: Response) => {
+export const addPost = async (req: Request, res: Response): Promise<any>  => {
     try {
         const { title, content, email, name } = req.body;
 
@@ -142,7 +143,7 @@ export const addPost = async (req: Request, res: Response) => {
     }
 };
 
-export const likePost = async (req: Request, res: Response) => {
+export const likePost = async (req: Request, res: Response): Promise<any>  => {
     const { id } = req.params;
     try {
         const result = await pool.query(
@@ -161,12 +162,36 @@ export const likePost = async (req: Request, res: Response) => {
     }
 }
 
-// export const editPost = async(req: Request, res: Response) => {
-//     try{
-//         const {id:number,title,content,imageurl} = req.body;
-//         if (!id) return res.status(400).json({ message: 'Post ID is required' });
-//     }
-// }
+export const editPost = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const postId = req.params.id;
+        const { title, content } = req.body;
+        const queryResult = await pool.query('UPDATE posts SET  title = $1, content = $2 WHERE id=$3 RETURNING *', [title, content, postId]);
+        if (queryResult.rows.length === 0) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        const updatedPost = queryResult.rows[0];
+        res.status(200).json(updatedPost);
+    } catch (err: any) {
+        console.error('Error editing posts:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export const delete1 = async (req: Request, res: Response): Promise<any> => {
+    try{
+        const postid = req.params.id;
+        const del = await pool.query('DELETE FROM posts WHERE id=$1',[postid]);
+        if (del.rowCount === 0) {
+            return res.status(404).json({ message: 'Post not found' });
+          }
+          res.status(200).json({ message: 'Post deleted successfully', postid });
+    }catch(err:any){
+        console.error('Error deleting post:', err);
+        res.status(500).json({ message: 'Internal server error' }); 
+    }
+}
 
 export const getPost = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -187,3 +212,20 @@ export const getPost = async (req: Request, res: Response): Promise<void> => {
         res.status(500).json({ error: 'Database error' });
     }
 };
+
+export const getPostById = async (req: Request, res: Response): Promise<any> => {
+    const postId = req.params.id;
+  
+    try {
+      const result = await pool.query('SELECT * FROM posts WHERE id = $1', [postId]);
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: 'Post not found' });
+      }
+  
+      return res.status(200).json(result.rows[0]);
+    } catch (error) {
+      console.error('Error fetching post:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  };
