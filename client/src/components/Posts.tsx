@@ -3,6 +3,7 @@ import { Com } from './Com';
 import { useNavigate } from 'react-router-dom';
 import axios from '../axiosConfig';
 import { formatDistanceToNow, parseISO } from 'date-fns';
+
 interface Post {
   id: number;
   name: string;
@@ -23,18 +24,31 @@ export const Post = () => {
   const [edit, setEdit] = useState<Post | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [comments, setComments] = useState<{ [key: number]:{ comment: string; createdAt?: string }[] }>({});
+  const [comments, setComments] = useState<{ [key: number]: { comment: string; createdAt?: string }[] }>({});
   const [activeCommentBox, setActiveCommentBox] = useState<number | null>(null);
   const [expandedImageId, setExpandedImageId] = useState<number | null>(null);
+  
+  // Loading states
+  const [loadingStates, setLoadingStates] = useState({
+    posts: false,
+    likes: {} as Record<number, boolean>,
+    comments: {} as Record<number, boolean>,
+    editing: false,
+    deleting: false,
+    sharing: {} as Record<number, boolean>,
+  });
 
   // Fetch posts from backend on component mount
   useEffect(() => {
     const fetchPosts = async () => {
+      setLoadingStates(prev => ({ ...prev, posts: true }));
       try {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_CON}/getpost`);
         setPosts(response.data);
       } catch (error) {
         console.error('Error fetching posts:', error);
+      } finally {
+        setLoadingStates(prev => ({ ...prev, posts: false }));
       }
     };
     fetchPosts();
@@ -58,6 +72,7 @@ export const Post = () => {
   }, []);
 
   const handleShare = async (postId: number) => {
+    setLoadingStates(prev => ({ ...prev, sharing: { ...prev.sharing, [postId]: true } }));
     try {
       const res = await axios.get(`${import.meta.env.VITE_BACKEND_CON}/post/${postId}`);
 
@@ -71,6 +86,8 @@ export const Post = () => {
     } catch (err) {
       console.error('Failed to copy:', err instanceof Error ? err.message : 'Unknown error');
       alert('Failed to copy post link.');
+    } finally {
+      setLoadingStates(prev => ({ ...prev, sharing: { ...prev.sharing, [postId]: false } }));
     }
   };
 
@@ -79,11 +96,14 @@ export const Post = () => {
   }, []);
 
   const handleLike = useCallback(async (id: number) => {
+    setLoadingStates(prev => ({ ...prev, likes: { ...prev.likes, [id]: true } }));
     try {
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_CON}/likes/${id}`);
       setLikes((prev) => ({ ...prev, [id]: res.data.likes }));
     } catch (error) {
       console.error('Error liking the post:', error);
+    } finally {
+      setLoadingStates(prev => ({ ...prev, likes: { ...prev.likes, [id]: false } }));
     }
   }, []);
 
@@ -92,6 +112,7 @@ export const Post = () => {
   }, []);
 
   const handleAddComment = useCallback(async (postId: number, comment: string) => {
+    setLoadingStates(prev => ({ ...prev, comments: { ...prev.comments, [postId]: true } }));
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_CON}/postcomm/${postId}`,
@@ -106,9 +127,10 @@ export const Post = () => {
       }
     } catch (error) {
       console.error("Failed to add comment:", error);
+    } finally {
+      setLoadingStates(prev => ({ ...prev, comments: { ...prev.comments, [postId]: false } }));
     }
   }, []);
-
 
   const handelEdit = useCallback((id: number) => {
     const postToEdit = posts.find((post) => post.id === id);
@@ -118,6 +140,7 @@ export const Post = () => {
   }, [posts]);
 
   const handleSaveEdit = useCallback(async (updatedPost: Post) => {
+    setLoadingStates(prev => ({ ...prev, editing: true }));
     try {
       const res = await axios.put(`${import.meta.env.VITE_BACKEND_CON}/edit/${updatedPost.id}`, updatedPost);
       setPosts(prevPosts =>
@@ -127,10 +150,10 @@ export const Post = () => {
       window.location.reload();
     } catch (error) {
       console.error('Error updating post:', error);
+    } finally {
+      setLoadingStates(prev => ({ ...prev, editing: false }));
     }
   }, []);
-
-
 
   const toggleExpandedImage = useCallback((id: number) => {
     setExpandedImageId((prev) => (prev === id ? null : id));
@@ -142,6 +165,7 @@ export const Post = () => {
   };
 
   const handleDeletePost = async () => {
+    setLoadingStates(prev => ({ ...prev, deleting: true }));
     if (deleteId !== null) {
       try {
         await axios.delete(`${import.meta.env.VITE_BACKEND_CON}/delete/${deleteId}`);
@@ -149,6 +173,8 @@ export const Post = () => {
         setIsDeleteModalOpen(false);
       } catch (error) {
         console.error('Error deleting post:', error);
+      } finally {
+        setLoadingStates(prev => ({ ...prev, deleting: false }));
       }
     }
   };
@@ -157,22 +183,22 @@ export const Post = () => {
 
   return (
     <div className="post space-y-6">
+      {loadingStates.posts && (
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+      )}
+
       {memoizedPosts.map((post) => (
         <div key={post.id} className="relative block">
           <div className="post-item border-gray-200 p-4 bg-white">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
-                <img
-                  src={post.authorImageUrl}
-                  alt={post.name}
-                  className="w-10 h-10 rounded-full mr-3"
-                />
                 <div>
                   <span className="font-medium text-gray-800 hover:  cursor-pointer">{post.name}</span>
-                  <span className="text-sm text-gray-500 ml-2">
+                  {/* <span className="text-sm text-gray-500 ml-2">
                     {post.created_at ? formatDistanceToNow(parseISO(post.created_at), { addSuffix: true }) : 'Unknown time'}
-                  </span>
-
+                  </span> */}
                 </div>
               </div>
               <div className="relative">
@@ -184,14 +210,29 @@ export const Post = () => {
                 </div>
                 {openDropdownId === post.id && (
                   <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-md z-20">
-                    <button onClick={() => handelEdit(post.id)} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                    <button 
+                      onClick={() => handelEdit(post.id)} 
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    >
                       Edit
                     </button>
-                    <button onClick={() => handelDel(post.id)} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                    <button 
+                      onClick={() => handelDel(post.id)} 
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    >
                       Delete
                     </button>
-                    <button onClick={() => handleShare(post.id)} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-                      Share
+                    <button 
+                      onClick={() => handleShare(post.id)} 
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
+                      disabled={loadingStates.sharing[post.id]}
+                    >
+                      {loadingStates.sharing[post.id] ? (
+                        <>
+                          <span className="mr-2">Sharing...</span>
+                          <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-gray-900"></div>
+                        </>
+                      ) : 'Share'}
                     </button>
                   </div>
                 )}
@@ -214,9 +255,15 @@ export const Post = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleSaveEdit(edit)}
-                    className="bg-green-500 text-white px-4 py-2 rounded"
+                    className="bg-green-500 text-white px-4 py-2 rounded flex items-center justify-center"
+                    disabled={loadingStates.editing}
                   >
-                    Save
+                    {loadingStates.editing ? (
+                      <>
+                        <span className="mr-2">Saving...</span>
+                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                      </>
+                    ) : 'Save'}
                   </button>
                   <button
                     onClick={() => setEdit(null)}
@@ -267,30 +314,42 @@ export const Post = () => {
             <div className="flex items-center justify-between mt-4">
               <button
                 onClick={() => handleLike(post.id)}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:cursor-pointer"
+                className="bg-red-500 text-white px-4 py-2 rounded hover:cursor-pointer flex items-center justify-center"
+                disabled={loadingStates.likes[post.id]}
               >
+                {loadingStates.likes[post.id] ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                ) : null}
                 {likes[post.id] || 0} Like
               </button>
               <button
                 onClick={() => toggleCommentBox(post.id)}
                 className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover: cursor-pointer"
               >
-                Comment
+                Show Comment
               </button>
               <button
                 onClick={() => handleShare(post.id)}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover: cursor-pointer">
-                Share
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover: cursor-pointer flex items-center"
+                disabled={loadingStates.sharing[post.id]}
+              >
+                {loadingStates.sharing[post.id] ? (
+                  <>
+                    <span className="mr-2">Sharing...</span>
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-gray-900"></div>
+                  </>
+                ) : 'Share'}
               </button>
             </div>
 
             {/* Comment section */}
             {activeCommentBox === post.id && (
-          <Com
-            postId={post.id}
-            comments={comments[post.id] || []} // Ensure the fallback to empty array if no comments yet
-            onAddComment={handleAddComment}
-          />
+              <Com
+                postId={post.id}
+                comments={comments[post.id] || []}
+                onAddComment={handleAddComment}
+                isLoading={loadingStates.comments[post.id]}
+              />
             )}
           </div>
         </div>
@@ -304,9 +363,15 @@ export const Post = () => {
             <div className="mt-4 flex gap-2">
               <button
                 onClick={handleDeletePost}
-                className="bg-red-500 text-white px-4 py-2 rounded"
+                className="bg-red-500 text-white px-4 py-2 rounded flex items-center justify-center"
+                disabled={loadingStates.deleting}
               >
-                Yes, Delete
+                {loadingStates.deleting ? (
+                  <>
+                    <span className="mr-2">Deleting...</span>
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                  </>
+                ) : 'Yes, Delete'}
               </button>
               <button
                 onClick={() => setIsDeleteModalOpen(false)}

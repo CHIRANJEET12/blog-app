@@ -2,24 +2,27 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 export const CoverHome = () => {
-  const stories = [
-    {
-      title: "The Future of AI",
-      image: "https://source.unsplash.com/400x300/?technology,ai",
-    },
-    {
-      title: "Traveling to the Alps",
-      image: "https://source.unsplash.com/400x300/?mountains,travel",
-    },
-    {
-      title: "Healthy Habits in 2025",
-      image: "https://source.unsplash.com/400x300/?health,lifestyle",
-    },
-    {
-      title: "Startup Journey Tips",
-      image: "https://source.unsplash.com/400x300/?startup,business",
-    },
-  ];
+const stories = [
+  {
+    title: "The Future of AI",
+    image: "https://images.unsplash.com/photo-1697577418970-95d99b5a55cf?q=80&w=1992&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  {
+    title: "Traveling to the Alps",
+    image: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?q=80&w=2076&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  {
+    title: "Healthy Habits in 2025",
+    image: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  {
+    title: "Startup Journey Tips",
+    image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80",
+  },
+];
+
+
+
 
   const reviews = [
     {
@@ -38,7 +41,7 @@ export const CoverHome = () => {
 
   return (
     <div className="bg-white text-black">
-        
+
       <div className="relative min-h-screen flex items-center justify-center text-white">
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -58,12 +61,12 @@ export const CoverHome = () => {
           </p>
           <div className="flex justify-center space-x-6">
             <Link to="/login">
-              <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-3 rounded-full shadow-lg transition">
+              <button className="bg-gradient-to-r border-white from-black via-gray-900 to-blue-900 text-white font-bold px-8 py-3  shadow-xl hover:scale-105 hover:from-indigo-800 hover:to-purple-700 transition-all duration-300 ease-in-out">
                 Log In
               </button>
             </Link>
             <Link to="/reg">
-              <button className="bg-white text-black font-bold px-8 py-3 rounded-full shadow-lg hover:bg-gray-200 transition">
+              <button className="bg-white text-black font-bold px-8 py-3  shadow-xl border-2 border-black hover:bg-gradient-to-r hover:from-white hover:to-gray-100 hover:scale-105 transition-all duration-300 ease-in-out">
                 Sign Up
               </button>
             </Link>
@@ -85,17 +88,21 @@ export const CoverHome = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-white px-6 border-t">
-        <h2 className="text-3xl font-bold mb-10 text-center">💬 What Our Users Say</h2>
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          {reviews.map((review, idx) => (
-            <div key={idx} className="bg-gray-100 p-6 rounded-lg shadow hover:shadow-lg transition">
-              <p className="text-gray-700 mb-4">“{review.text}”</p>
-              <p className="font-semibold text-indigo-600">— {review.name}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+<section className="py-20 bg-gradient-to-br from-white via-gray-50 to-white px-6 border-t">
+  <h2 className="text-4xl font-extrabold mb-14 text-center text-gray-800">💬 What Our Users Say</h2>
+  <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
+    {reviews.map((review, idx) => (
+      <div
+        key={idx}
+        className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100"
+      >
+        <p className="text-gray-600 italic mb-6 leading-relaxed">“{review.text}”</p>
+        <p className="font-bold text-indigo-700 text-right">— {review.name}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
     </div>
   );
 };

@@ -82,7 +82,7 @@ export const Postid: React.FC = () => {
             </div>
             <div>
               <p className="text-lg font-medium text-gray-800">{post.name}</p>
-              <p className="text-sm text-gray-500">{new Date(post.time).toLocaleString()}</p>
+              {/* <p className="text-sm text-gray-500">{new Date(post.time).toLocaleString()}</p> */}
             </div>
           </div>
 

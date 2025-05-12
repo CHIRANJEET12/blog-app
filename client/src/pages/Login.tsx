@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../axiosConfig'; // adjust path if different
 
-// Declare the type for the onLoginSuccess prop
 interface LoginProps {
   onLoginSuccess: () => void;
 }
@@ -12,27 +11,33 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
     email: '',
     password: ''
   });
+  const [loading, setLoading] = useState(false); // New loading state
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true when form is submitted
+
     try {
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_CON}/login`, formData);
 
       if (res && res.data?.token) {
-        console.log('res:',res);
-        localStorage.setItem('email',res.data.email);
+        console.log('res:', res);
+        localStorage.setItem('email', res.data.email);
         localStorage.setItem('token', res.data.token);
-        localStorage.setItem('islogin', 'true'); 
+        localStorage.setItem('islogin', 'true');
 
         onLoginSuccess();
       }
     } catch (err: any) {
       alert(err.response?.data?.message || 'Login failed');
       console.error('Login error:', err);
+    } finally {
+      setLoading(false); // Reset loading to false after the request completes
     }
   };
 
@@ -79,8 +84,15 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
               <button
                 type="submit"
                 className="bg-gray-700 text-white font-bold py-2 px-4 w-full rounded hover:bg-gray-600"
+                disabled={loading} // Disable the button during loading
               >
-                Login
+                {loading ? (
+                  <div className="flex justify-center items-center">
+                    <div className="w-5 h-5 border-4 border-t-4 border-white rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  'Login'
+                )}
               </button>
             </div>
 

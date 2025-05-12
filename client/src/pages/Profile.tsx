@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from '../axiosConfig';
 import { FiExternalLink } from 'react-icons/fi';
 
-
 interface ProfileProps {
   name: string;
   age: number;
@@ -38,6 +37,8 @@ const ProfileForm: React.FC = () => {
     resume: '',
   });
 
+  const [loading, setLoading] = useState(false); // Add loading state for form submission
+
   useEffect(() => {
     const fetchProfile = async () => {
       if (!profile.email) return;
@@ -67,11 +68,15 @@ const ProfileForm: React.FC = () => {
     e.preventDefault();
     localStorage.setItem('email', profile.email);
 
+    setLoading(true); // Set loading to true when submission starts
+
     try {
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_CON}/profile`, profile);
       alert('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);
+    } finally {
+      setLoading(false); // Set loading to false after submission
     }
   };
 
@@ -86,7 +91,7 @@ const ProfileForm: React.FC = () => {
         <FiExternalLink className="text-white" />
       </a>
     ) : null;
-  }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-black text-white">
@@ -235,8 +240,9 @@ const ProfileForm: React.FC = () => {
           <button
             type="submit"
             className="w-full p-3 mt-4 bg-black text-white rounded-md hover:bg-white hover:text-black transition duration-200"
+            disabled={loading} // Disable the button when loading
           >
-            Save
+            {loading ? 'Saving...' : 'Save'} {/* Show loading text */}
           </button>
         </form>
       </div>

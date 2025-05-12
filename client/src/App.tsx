@@ -45,7 +45,7 @@ const App = () => {
           </>
         ) : (
           // If not logged in, show the CoverHome page
-          <Route path="/home" element={<CoverHome />} />
+          <Route path="/" element={<CoverHome />} />
         )}
         <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
         <Route path="/reg" element={<Reg />} />

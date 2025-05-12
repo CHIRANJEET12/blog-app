@@ -1,24 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../axiosConfig';
-// import { formatDistanceToNow, parseISO } from 'date-fns';
 
 interface ComProps {
   postId: number;
-  comments: { comment: string; createdAt?: string }[]; 
-  onAddComment: (postId: number, comment: string) => Promise<void>;
+  comments: Array<{ comment: string; createdAt?: string }>;
+  onAddComment: (postId: number, comment: string) => void;
+  isLoading?: boolean;
 }
 
-export const Com: React.FC<ComProps> = ({ postId, comments: initialComments, onAddComment }) => {
+export const Com: React.FC<ComProps> = ({ postId, comments: initialComments, onAddComment, isLoading }) => {
   const [text, setText] = useState('');
   const [comments, setComments] = useState<{ comment: string; createdAt?: string }[]>(initialComments);
 
   const fetchComments = async () => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_CON}/getcomm/${postId}`);
-      setComments(response.data.map((comment: any) => ({ 
+      setComments(response.data.map((comment: any) => ({
         comment: comment.comment,
         createdAt: comment.createdAt,
-        post: comment.post,
       })));
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -31,9 +30,9 @@ export const Com: React.FC<ComProps> = ({ postId, comments: initialComments, onA
 
   const handleSubmit = async () => {
     if (text.trim()) {
-      await onAddComment(postId, text); 
-      setText(''); 
-      fetchComments(); 
+      await onAddComment(postId, text);
+      setText('');
+      fetchComments();
     }
   };
 
@@ -45,23 +44,30 @@ export const Com: React.FC<ComProps> = ({ postId, comments: initialComments, onA
   };
 
   return (
-    <div className="mt-4 max-w-3xl mx-auto px-4">
-      <div className="flex gap-2 mb-4 items-center border-b border-gray-300 pb-4">
+    <div className="mt-4">
+      <div className="flex gap-2 mb-2">
         <input
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          onKeyDown={handleKeyDown}
           placeholder="Write a comment..."
-          className="flex-1 p-3 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-          aria-label="Comment input"
+          className="border border-gray-300 rounded p-2 w-full"
+          disabled={isLoading}
+          onKeyDown={handleKeyDown}
         />
         <button
           onClick={handleSubmit}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all focus:outline-none"
-          aria-label="Submit comment"
+          className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center"
+          disabled={isLoading}
         >
-          Post
+          {isLoading ? (
+            <>
+              <span className="mr-2">Posting...</span>
+              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+            </>
+          ) : (
+            'Submit'
+          )}
         </button>
       </div>
 
@@ -72,7 +78,7 @@ export const Com: React.FC<ComProps> = ({ postId, comments: initialComments, onA
               key={`${postId}-${idx}`}
               className="bg-white shadow-sm rounded-lg p-4 flex gap-3 items-start border border-gray-200"
             >
-              <div className="w-10 h-10 bg-gray-300 rounded-full"></div> 
+              <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
               <div className="flex-1">
                 <div className="text-sm text-gray-600 mt-1">{comment.comment}</div>
               </div>
