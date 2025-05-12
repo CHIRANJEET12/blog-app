@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Com } from './Com';
 import { useNavigate } from 'react-router-dom';
 import axios from '../axiosConfig';
-import { formatDistanceToNow, parseISO } from 'date-fns';
 
 interface Post {
   id: number;

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from '../axiosConfig'; // adjust path if different
 
 interface LoginProps {
@@ -12,7 +11,6 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
     password: ''
   });
   const [loading, setLoading] = useState(false); // New loading state
-  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

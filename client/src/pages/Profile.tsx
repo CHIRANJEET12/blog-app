@@ -72,6 +72,7 @@ const ProfileForm: React.FC = () => {
 
     try {
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_CON}/profile`, profile);
+      console.log(res.data);
       alert('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);

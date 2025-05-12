@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const Navbar = () => {
-  const [islogin, setIsLogin] = useState(false);
+  // const [islogin, setIsLogin] = useState(false);
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
 
@@ -10,7 +10,7 @@ export const Navbar = () => {
   useEffect(() => {
     const check = localStorage.getItem('islogin');
     const isLoggedIn = check === 'true';
-    setIsLogin(isLoggedIn);
+    // setIsLogin(isLoggedIn);
     setShow(isLoggedIn);
   }, []);
 
@@ -20,7 +20,7 @@ export const Navbar = () => {
     localStorage.removeItem('islogin');
     localStorage.removeItem('name');
     localStorage.removeItem('email');
-    setIsLogin(false);
+    // setIsLogin(false);
     setShow(false);
     navigate('/');
   };

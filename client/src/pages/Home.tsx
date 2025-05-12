@@ -49,6 +49,7 @@ export const Home = () => {
             name,
             email,
           });
+          console.log(res.data.message);
           alert('Post created');
           setFormData({ title: '', content: '', image: null });
           window.location.reload();
