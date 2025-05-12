@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Com } from './Com';
-import { useNavigate } from 'react-router-dom';
 import axios from '../axiosConfig';
 
 interface Post {
@@ -15,7 +14,6 @@ interface Post {
 }
 
 export const Post = () => {
-  const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loadedImages, setLoadedImages] = useState<number[]>([]);
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
