@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import {authenticateToken} from '../middleware/user';
-import {register,login,updateProfile,getProfile,addPost,getPost,likePost,editPost,delete1,getPostById} from '../controllers/user';
+import {register,login,updateProfile,getProfile,addPost,getPost,likePost,editPost,delete1,getPostById,postcomm,getcomm} from '../controllers/user';
 const router = express.Router();
 
 router.post('/reg', register);
@@ -13,6 +13,8 @@ router.post('/likes/:id',authenticateToken,likePost);
 router.put('/edit/:id',authenticateToken,editPost);
 router.delete('/delete/:id',authenticateToken,delete1);
 router.get('/post/:id',getPostById);
+router.post('/postcomm/:id',authenticateToken,postcomm);
+router.get('/getcomm/:id',authenticateToken,getcomm);
 // router.get('/profile/:id',getProfilebyId);
 
 

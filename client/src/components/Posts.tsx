@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Com } from './Com';
 import { useNavigate } from 'react-router-dom';
-
 import axios from '../axiosConfig';
-
+import { formatDistanceToNow, parseISO } from 'date-fns';
 interface Post {
   id: number;
   name: string;
@@ -12,10 +11,10 @@ interface Post {
   imageUrl: string;
   time: string;
   authorImageUrl: string;
+  created_at: string;
 }
 
 export const Post = () => {
-
   const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loadedImages, setLoadedImages] = useState<number[]>([]);
@@ -24,10 +23,11 @@ export const Post = () => {
   const [edit, setEdit] = useState<Post | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [comments, setComments] = useState<{ [key: number]: string[] }>({});
+  const [comments, setComments] = useState<{ [key: number]:{ comment: string; createdAt?: string }[] }>({});
   const [activeCommentBox, setActiveCommentBox] = useState<number | null>(null);
   const [expandedImageId, setExpandedImageId] = useState<number | null>(null);
 
+  // Fetch posts from backend on component mount
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -40,6 +40,7 @@ export const Post = () => {
     fetchPosts();
   }, []);
 
+  // Load likes from localStorage on component mount
   useEffect(() => {
     const storedLikes = localStorage.getItem('likes');
     if (storedLikes) {
@@ -47,6 +48,7 @@ export const Post = () => {
     }
   }, []);
 
+  // Save likes to localStorage when they change
   useEffect(() => {
     localStorage.setItem('likes', JSON.stringify(likes));
   }, [likes]);
@@ -72,7 +74,6 @@ export const Post = () => {
     }
   };
 
-
   const toggleDropdown = useCallback((id: number) => {
     setOpenDropdownId((prevId) => (prevId === id ? null : id));
   }, []);
@@ -89,6 +90,25 @@ export const Post = () => {
   const toggleCommentBox = useCallback((id: number) => {
     setActiveCommentBox((prevId) => (prevId === id ? null : id));
   }, []);
+
+  const handleAddComment = useCallback(async (postId: number, comment: string) => {
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_CON}/postcomm/${postId}`,
+        { comment }
+      );
+
+      if (res.status === 200 || res.status === 201) {
+        setComments(prev => ({
+          ...prev,
+          [postId]: [...(prev[postId] || []), res.data],
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+    }
+  }, []);
+
 
   const handelEdit = useCallback((id: number) => {
     const postToEdit = posts.find((post) => post.id === id);
@@ -110,12 +130,7 @@ export const Post = () => {
     }
   }, []);
 
-  const handleAddComment = useCallback((postId: number, comment: string) => {
-    setComments((prev) => ({
-      ...prev,
-      [postId]: [...(prev[postId] || []), comment],
-    }));
-  }, []);
+
 
   const toggleExpandedImage = useCallback((id: number) => {
     setExpandedImageId((prev) => (prev === id ? null : id));
@@ -138,7 +153,6 @@ export const Post = () => {
     }
   };
 
-
   const memoizedPosts = posts;
 
   return (
@@ -155,7 +169,10 @@ export const Post = () => {
                 />
                 <div>
                   <span className="font-medium text-gray-800 hover:  cursor-pointer">{post.name}</span>
-                  <span className="text-sm text-gray-500 ml-2">{post.time}</span>
+                  <span className="text-sm text-gray-500 ml-2">
+                    {post.created_at ? formatDistanceToNow(parseISO(post.created_at), { addSuffix: true }) : 'Unknown time'}
+                  </span>
+
                 </div>
               </div>
               <div className="relative">
@@ -260,20 +277,26 @@ export const Post = () => {
               >
                 Comment
               </button>
-              <button onClick={() => handleShare(post.id)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover: cursor-pointer">Share</button>
+              <button
+                onClick={() => handleShare(post.id)}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover: cursor-pointer">
+                Share
+              </button>
             </div>
 
+            {/* Comment section */}
             {activeCommentBox === post.id && (
-              <Com
-                postId={post.id}
-                comments={comments[post.id] || []}
-                onAddComment={handleAddComment}
-              />
+          <Com
+            postId={post.id}
+            comments={comments[post.id] || []} // Ensure the fallback to empty array if no comments yet
+            onAddComment={handleAddComment}
+          />
             )}
           </div>
         </div>
       ))}
 
+      {/* Delete confirmation modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-4 rounded shadow-lg">

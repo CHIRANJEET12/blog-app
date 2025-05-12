@@ -115,7 +115,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<any> =
 
 
 
-export const addPost = async (req: Request, res: Response): Promise<any>  => {
+export const addPost = async (req: Request, res: Response): Promise<any> => {
     try {
         const { title, content, email, name } = req.body;
 
@@ -143,7 +143,7 @@ export const addPost = async (req: Request, res: Response): Promise<any>  => {
     }
 };
 
-export const likePost = async (req: Request, res: Response): Promise<any>  => {
+export const likePost = async (req: Request, res: Response): Promise<any> => {
     const { id } = req.params;
     try {
         const result = await pool.query(
@@ -180,16 +180,16 @@ export const editPost = async (req: Request, res: Response): Promise<any> => {
 }
 
 export const delete1 = async (req: Request, res: Response): Promise<any> => {
-    try{
+    try {
         const postid = req.params.id;
-        const del = await pool.query('DELETE FROM posts WHERE id=$1',[postid]);
+        const del = await pool.query('DELETE FROM posts WHERE id=$1', [postid]);
         if (del.rowCount === 0) {
             return res.status(404).json({ message: 'Post not found' });
-          }
-          res.status(200).json({ message: 'Post deleted successfully', postid });
-    }catch(err:any){
+        }
+        res.status(200).json({ message: 'Post deleted successfully', postid });
+    } catch (err: any) {
         console.error('Error deleting post:', err);
-        res.status(500).json({ message: 'Internal server error' }); 
+        res.status(500).json({ message: 'Internal server error' });
     }
 }
 
@@ -236,22 +236,65 @@ export const getPost = async (req: Request, res: Response): Promise<void> => {
 //   }
 // };
 
+
 export const getPostById = async (req: Request, res: Response): Promise<any> => {
-  const postId = req.params.id;
+    const postId = req.params.id;
 
-  try {
-    const result = await pool.query(
-      'SELECT id, name, title, content, image_url AS "imageUrl", created_at AS time FROM posts WHERE id = $1',
-      [postId]
-    );
+    try {
+        const result = await pool.query(
+            'SELECT id, name, title, content, image_url AS "imageUrl", created_at FROM posts WHERE id = $1',
+            [postId]
+        );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Post not found' });
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        return res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error fetching post:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
+export const postcomm = async (req: Request, res: Response): Promise<any> => {
+    const { id } = req.params;
+    const { comment } = req.body;
+
+    try {
+        const result = await pool.query(
+            'INSERT INTO comments (postid, comment) VALUES ($1, $2) RETURNING *',
+            [id, comment]
+        );
+
+        res.status(201).json(result.rows[0]);
+    } catch (err: any) {
+        console.error('Error adding comment:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+export const getcomm = async (req: Request, res: Response): Promise<any> => {
+    const postIdParam = req.params.id;
+
+    if (!postIdParam || isNaN(Number(postIdParam))) {
+        return res.status(400).json({ error: 'Invalid or missing postId parameter' });
     }
 
-    return res.status(200).json(result.rows[0]);
-  } catch (error) {
-    console.error('Error fetching post:', error);
-    return res.status(500).json({ message: 'Internal server error' });
-  }
+    const postId = parseInt(postIdParam, 10);
+
+    try {
+        const result = await pool.query(
+            'SELECT id,postid,comment,createdAt FROM comments WHERE postid = $1 ORDER BY createdAt ASC', // Adjusted to include post column
+            [postId]
+        );
+
+        const comments = result.rows;
+
+        return res.status(200).json(comments);
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
 };
