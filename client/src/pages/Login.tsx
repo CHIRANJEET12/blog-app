@@ -95,7 +95,7 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
             </div>
 
             <div className="mt-4 text-center">
-              <a href="/register" className="text-xs text-gray-500 uppercase">
+              <a href="/reg" className="text-xs text-gray-500 uppercase">
                 Don't have an account? Register
               </a>
             </div>
